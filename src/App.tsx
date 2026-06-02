@@ -186,7 +186,7 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           
           {/* Deck A Left Table */}
-          <div className="col-span-1 lg:col-span-5">
+          <div className="col-span-1 lg:col-span-4">
             <Turntable 
               deckId="A" 
               onStateChange={refreshMainLayout} 
@@ -195,7 +195,7 @@ export default function App() {
           </div>
 
           {/* Central Mixing Desk Console */}
-          <div className="col-span-1 lg:col-span-2">
+          <div className="col-span-1 lg:col-span-4">
             <Mixer 
               onUpdate={refreshMainLayout}
               trackAColor={trackA.color}
@@ -204,7 +204,7 @@ export default function App() {
           </div>
 
           {/* Deck B Right Table */}
-          <div className="col-span-1 lg:col-span-5">
+          <div className="col-span-1 lg:col-span-4">
             <Turntable 
               deckId="B" 
               onStateChange={refreshMainLayout} 

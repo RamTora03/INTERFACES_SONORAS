@@ -208,7 +208,7 @@ export const Mixer: React.FC<MixerProps> = ({ onUpdate, trackAColor, trackBColor
       <div className="flex flex-col items-center justify-center text-center pb-3 border-b border-[#333]">
         <span className="text-[10px] tracking-[0.3em] font-mono text-[#00f3ff] font-extrabold uppercase">DAFT CONSOLE</span>
         <h3 className="text-sm font-sans font-black text-white tracking-widest uppercase mt-0.5">
-          FRENCH HOUSE COPLER
+          FRENCH HOUSE COUPLER
         </h3>
       </div>
 
@@ -252,7 +252,7 @@ export const Mixer: React.FC<MixerProps> = ({ onUpdate, trackAColor, trackBColor
                 max="12" 
                 value={eqH_A} 
                 onChange={(e) => handleEqChange('A', 'high', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
+                className="w-full max-w-[100px] h-1.5 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
               />
               <span className="text-[9px] font-mono text-zinc-400 mt-1">{eqH_A > 0 ? `+${eqH_A}` : eqH_A} dB</span>
             </div>
@@ -266,7 +266,7 @@ export const Mixer: React.FC<MixerProps> = ({ onUpdate, trackAColor, trackBColor
                 max="12" 
                 value={eqM_A} 
                 onChange={(e) => handleEqChange('A', 'mid', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
+                className="w-full max-w-[100px] h-1.5 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
               />
               <span className="text-[9px] font-mono text-zinc-400 mt-1">{eqM_A > 0 ? `+${eqM_A}` : eqM_A} dB</span>
             </div>
@@ -280,7 +280,7 @@ export const Mixer: React.FC<MixerProps> = ({ onUpdate, trackAColor, trackBColor
                 max="12" 
                 value={eqL_A} 
                 onChange={(e) => handleEqChange('A', 'low', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
+                className="w-full max-w-[100px] h-1.5 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
               />
               <span className="text-[9px] font-mono text-zinc-400 mt-1">{eqL_A > 0 ? `+${eqL_A}` : eqL_A} dB</span>
             </div>
@@ -341,7 +341,7 @@ export const Mixer: React.FC<MixerProps> = ({ onUpdate, trackAColor, trackBColor
                 max="12" 
                 value={eqH_B} 
                 onChange={(e) => handleEqChange('B', 'high', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
+                className="w-full max-w-[100px] h-1.5 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
               />
               <span className="text-[9px] font-mono text-zinc-400 mt-1">{eqH_B > 0 ? `+${eqH_B}` : eqH_B} dB</span>
             </div>
@@ -355,7 +355,7 @@ export const Mixer: React.FC<MixerProps> = ({ onUpdate, trackAColor, trackBColor
                 max="12" 
                 value={eqM_B} 
                 onChange={(e) => handleEqChange('B', 'mid', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
+                className="w-full max-w-[100px] h-1.5 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
               />
               <span className="text-[9px] font-mono text-zinc-400 mt-1">{eqM_B > 0 ? `+${eqM_B}` : eqM_B} dB</span>
             </div>
@@ -369,7 +369,7 @@ export const Mixer: React.FC<MixerProps> = ({ onUpdate, trackAColor, trackBColor
                 max="12" 
                 value={eqL_B} 
                 onChange={(e) => handleEqChange('B', 'low', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-[#272733] rounded appearance-none cursor-pointer accent-zinc-100"
+                className="w-full max-w-[100px] h-1.5 bg-zinc-800 rounded appearance-none cursor-pointer accent-zinc-100"
               />
               <span className="text-[9px] font-mono text-zinc-400 mt-1">{eqL_B > 0 ? `+${eqL_B}` : eqL_B} dB</span>
             </div>
