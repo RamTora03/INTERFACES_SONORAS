@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da Funk DJ Console </title>
+    <!-- Librería p5.js CDN oficial -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,900;1,900&family=JetBrains+Mono:wght@400;700;800&display=swap');
+
+        :root {
+            --color-pink: #ff0077;
+            --color-cyan: #00f3ff;
+            --color-gold: #ffea00;
+            --color-violet: #9316e0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050508;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Iluminación ambiental de fondo (Neon Aura) */
+        .neon-aura {
+            position: absolute;
+            width: 50vw;
+            height: 50vw;
+            border-radius: 50%;
+            filter: blur(160px);
+            opacity: 0.14;
+            pointer-events: none;
+            z-index: -1;
+            animation: pulse-aura 8s infinite alternate ease-in-out;
+        }
+        #aura-left {
+            background: var(--color-pink);
+            top: -10%;
+            left: -10%;
+        }
+        #aura-right {
+            background: var(--color-cyan);
+            bottom: -10%;
+            right: -10%;
+            animation-delay: 2s;
+        }
+
+        @keyframes pulse-aura {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.12; }
+            50% { transform: scale(1.15) translate(4%, -4%); opacity: 0.18; }
+            100% { transform: scale(0.9) translate(-2%, 2%); opacity: 0.13; }
+        }
+
+        .cyber-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Estructura Principal */
+        #dj-desk {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1240px;
+            padding: 30px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        /* Encabezado */
+        .masthead {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .masthead h1 {
+            margin: 0;
+            font-size: 42px;
+            font-weight: 900;
+            font-style: italic;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .masthead h1 span.highlight-pink {
+            color: var(--color-pink);
+            text-shadow: 0 0 20px rgba(255, 0, 119, 0.6);
+        }
+
+        .masthead h1 span.highlight-cyan {
+            color: var(--color-cyan);
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
+        }
+
+        .masthead p {
+            margin: 8px 0 0 0;
+            font-size: 11px;
+            letter-spacing: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #555566;
+            font-weight: bold;
+        }
+
+        /* Grid de la Consola */
+        .console-layout {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: stretch;
+            gap: 20px;
+            width: 100%;
+        }
+
+        @media (max-width: 1120px) {
+            .console-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* Selectores de cada Deck */
+        .deck-settings {
+            background: rgba(10, 10, 15, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 20px;
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-sizing: border-box;
+        }
+
+        .deck-settings h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: #555566;
+            margin: 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .deck-settings h2 span.glowing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .track-picker-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Botones de selección */
+        .track-option {
+            background: rgba(2, 2, 4, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 10px 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            color: #7c7c8c;
+            outline: none;
+        }
+
+        .track-option:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            color: #fff;
+        }
+
+        .track-option.active {
+            color: #ffffff;
+            border-color: var(--active-color);
+            box-shadow: 0 0 12px var(--active-shadow);
+            background: rgba(15, 15, 25, 0.9);
+        }
+
+        .track-option .track-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+            font-weight: bold;
+        }
+
+        .track-option .track-sub {
+            font-size: 9px;
+            color: #494956;
+            margin-top: 3px;
+        }
+
+        .track-option.active .track-sub {
+            color: #8a8a9a;
+        }
+
+        /* HUD informativo del estado de la pista */
+        .deck-info-hud {
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #666;
+            text-align: center;
+            background: #020204;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.02);
+            line-height: 1.4;
+        }
+
+        /* Contenedor del Lienzo p5 */
+        .canvas-chassis {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #canvas-frame {
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+            overflow: hidden;
+            background-color: #09090f;
+            border-radius: 20px;
+        }
+
+        /* Panel de Consejos del Operador */
+        .operator-panel {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #555562;
+            text-align: center;
+            max-width: 650px;
+            line-height: 1.6;
+        }
+
+        .operator-panel strong {
+            color: #a1a1b5;
+        }
+
+        /* Pantalla de Desbloqueo inicial */
+        #shutter {
+            position: fixed;
+            inset: 0;
+            background-color: #030306;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+
+        #shutter-btn {
+            background: linear-gradient(45deg, var(--color-pink), var(--color-cyan));
+            border: none;
+            color: #000000;
+            padding: 16px 40px;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 900;
+            letter-spacing: 3px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 35px rgba(255, 0, 119, 0.35);
+            transition: all 0.3s ease;
+        }
+
+        #shutter-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 45px rgba(0, 243, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="neon-aura" id="aura-left"></div>
+    <div class="neon-aura" id="aura-right"></div>
+    <div class="cyber-grid"></div>
+
+    <!-- Pantalla de Bienvenida (Desbloquea el audio del navegador) -->
+    <div id="shutter">
+        <h2 style="font-weight: 900; font-size: 36px; font-style: italic; text-transform: uppercase; margin: 0; color: #fff; text-shadow: 0 0 15px rgba(255, 0, 119, 0.45);">DA FUNK</h2>
+        <p style="color: #444455; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 5px; margin: 8px 0 35px 0; font-weight: bold;">p5.js DJ SCRATCH STATION</p>
+        <button id="shutter-btn" onclick="bootAudioContext()">INICIAR</button>
+    </div>
+
+    <div id="dj-desk">
+        
+        <header class="masthead">
+            <h1><span class="highlight-pink">DA</span> <span class="highlight-cyan">FUNK</span></h1>
+            <p>CONSOLA DE SCRATCH CON CANCIONES DE DAFT PUNK EN p5.js </p>
+        </header>
+
+        <section class="console-layout">
+            
+            <!-- DECK A -->
+            <div class="deck-settings" id="deck-config-a">
+                <h2>DECK A <span class="glowing-dot" id="dot-a"></span></h2>
+                <div class="track-picker-list" id="tracklist-a"></div>
+                <div class="deck-info-hud" id="hud-a">Cargando pistas...</div>
+            </div>
+
+            <!-- LIENZO Y CONTROLES -->
+            <div class="canvas-chassis">
+                <div id="canvas-frame"></div>
+                
+                <footer class="operator-panel">
+                    <strong>Controles de Consola:</strong> Haz clic y <strong>arrastra los vinilos</strong> para hacer scratch hacia adelante/atrás en tiempo real. Usa los deslizadores inferiores del lienzo: <strong>VOL</strong> controla ganancias, <strong>SPD</strong> altera el tono y la velocidad (0.6x - 1.4x), y <strong>X-FADER</strong> realiza la mezcla cruzada.
+                </footer>
+            </div>
+
+            <!-- DECK B -->
+            <div class="deck-settings" id="deck-config-b">
+                <h2>DECK B <span class="glowing-dot" id="dot-b"></span></h2>
+                <div class="track-picker-list" id="tracklist-b"></div>
+                <div class="deck-info-hud" id="hud-b">Cargando pistas...</div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <script>
+        // --- BASE DE DATOS DE CANCIONES (CON REPRODUCCIÓN DIRECTA DESDE ARCHIVE.ORG) ---
+        const DAFT_SONGS = [
+            {
+                id: 'aerodynamic',
+                name: 'Aerodynamic',
+                color: '#00f3ff',
+                colorGlow: 'rgba(0, 243, 255, 0.4)',
+                url: 'https://archive.org/download/daft-punk-discovery-2001/02.%20Aerodynamic.mp3'
+            },
+            {
+                id: 'around_the_world',
+                name: 'Around The World',
+                color: '#ff0077',
+                colorGlow: 'rgba(255, 0, 119, 0.4)',
+                url: 'https://archive.org/download/daft-punk-homework_202107/07%20-%20Around%20The%20World.mp3'
+            },
+            {
+                id: 'face_to_face',
+                name: 'Face to Face',
+                color: '#ffea00',
+                colorGlow: 'rgba(255, 234, 0, 0.4)',
+                url: 'https://archive.org/download/daft-punk-discovery-2001/13.%20Face%20to%20Face.mp3'
+            },
+            {
+                id: 'superheroes',
+                name: 'Superheroes',
+                color: '#9d00ff',
+                colorGlow: 'rgba(157, 0, 255, 0.4)',
+                url: 'https://archive.org/download/daft-punk-discovery-2001/07.%20Superheroes.mp3'
+            }
+        ];
+
+        // --- ESTADOS DE REPRODUCCIÓN GLOBALES ---
+        let audioCtx = null;
+        let p5Canvas = null;
+
+        let deckA = {
+            id: 'A',
+            songIndex: 0, // Por defecto inicializa con Aerodynamic
+            isPlaying: false,
+            isScratching: false,
+            status: "Inactivo",
+            buffer: null,
+            source: null,
+            offset: 0.0,
+            lastStartTime: 0.0,
+            angle: 0.0,
+            lastAngle: 0.0,
+            lastDragTime: 0,
+            volume: 0.8,
+            speedVal: 0.5, // Resuelve el control de velocidad en lugar del filtro (0.0 a 1.0)
+            speed: 1.0,    // Valor calculado (0.6 a 1.4)
+            gainNode: null,
+            filterNode: null,
+            analyser: null,
+            dataArray: null
+        };
+
+        let deckB = {
+            id: 'B',
+            songIndex: 1, // Por defecto inicializa con Around The World
+            isPlaying: false,
+            isScratching: false,
+            status: "Inactivo",
+            buffer: null,
+            source: null,
+            offset: 0.0,
+            lastStartTime: 0.0,
+            angle: 0.0,
+            lastAngle: 0.0,
+            lastDragTime: 0,
+            volume: 0.8,
+            speedVal: 0.5,
+            speed: 1.0,
+            gainNode: null,
+            filterNode: null,
+            analyser: null,
+            dataArray: null
+        };
+
+        let crossfader = 0.5;
+
+        // --- WEB AUDIO API DECODE & INICIALIZACIÓN ---
+        function bootAudioContext() {
+            let AudioCtx = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioCtx();
+
+            // Configurar ruteo de audio independiente para cada deck
+            setupDeckAudioRouting(deckA);
+            setupDeckAudioRouting(deckB);
+
+            // Cerrar la pantalla inicial
+            document.getElementById('shutter').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('shutter').style.display = 'none';
+            }, 500);
+
+            // Pre-cargar búfer de audio de las pistas iniciales
+            loadSongBuffer(deckA, deckA.songIndex);
+            loadSongBuffer(deckB, deckB.songIndex);
+        }
+
+        function setupDeckAudioRouting(deck) {
+            deck.gainNode = audioCtx.createGain();
+            deck.filterNode = audioCtx.createBiquadFilter();
+            deck.filterNode.type = 'lowpass';
+            deck.filterNode.frequency.setValueAtTime(20000, audioCtx.currentTime); // Abierto por defecto
+
+            deck.analyser = audioCtx.createAnalyser();
+            deck.analyser.fftSize = 128;
+            deck.dataArray = new Uint8Array(deck.analyser.frequencyBinCount);
+
+            // Cadena de audio: Fuente -> Filtro -> Gain -> Analizador -> Salida principal
+            deck.filterNode.connect(deck.gainNode);
+            deck.gainNode.connect(deck.analyser);
+            deck.analyser.connect(audioCtx.destination);
+        }
+
+        // --- CARGA DE CANCION AL BUFER ---
+        async function loadSongBuffer(deck, songIdx) {
+            const song = DAFT_SONGS[songIdx];
+            deck.songIndex = songIdx;
+            deck.status = "Descargando...";
+            updateWebUIs(deck.id);
+
+            // Detener nodos de audio activos del deck
+            if (deck.source) {
+                try { deck.source.stop(); } catch(e){}
+                deck.source = null;
+            }
+            deck.buffer = null;
+            deck.offset = 0.0;
+            deck.lastStartTime = 0.0;
+
+            try {
+                const response = await fetch(song.url);
+                const rawBuffer = await response.arrayBuffer();
+                const decoded = await audioCtx.decodeAudioData(rawBuffer);
+                deck.buffer = decoded;
+                deck.status = "Lista";
+            } catch (err) {
+                console.error("CORS / Error al conectar con Archive.org del archivo MP3", err);
+                deck.status = "Error de red/CORS";
+            }
+            updateWebUIs(deck.id);
+        }
+
+        // --- DISPADOR DE PLAY/PAUSA ---
+        function toggleDeckPlayback(deck) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            if (!deck.buffer) return;
+
+            if (deck.isPlaying) {
+                deck.isPlaying = false;
+                if (deck.source) {
+                    try { deck.source.stop(); } catch(e){}
+                    deck.source = null;
+                }
+                // Conserva el playhead escalado con la velocidad del plato
+                const elapsed = (audioCtx.currentTime - deck.lastStartTime) * deck.speed;
+                deck.offset = (deck.offset + elapsed) % deck.buffer.duration;
+            } else {
+                deck.isPlaying = true;
+                startBufferPlaybackNode(deck);
+            }
+            updateWebUIs(deck.id);
+        }
+
+        function startBufferPlaybackNode(deck) {
+            if (!deck.buffer || !deck.isPlaying || deck.isScratching) return;
+
+            if (deck.source) {
+                try { deck.source.stop(); } catch(e){}
+            }
+
+            const src = audioCtx.createBufferSource();
+            src.buffer = deck.buffer;
+            src.loop = true;
+            src.connect(deck.filterNode);
+
+            // Sincroniza la velocidad del motor de audio (playbackRate)
+            src.playbackRate.setValueAtTime(deck.speed, audioCtx.currentTime);
+
+            const safeOffset = Math.max(0, deck.offset % deck.buffer.duration);
+            src.start(0, safeOffset);
+
+            deck.source = src;
+            deck.lastStartTime = audioCtx.currentTime;
+        }
+
+        // --- MOTOR DE SCRATCH (FALSA FRICCIÓN DE VINILO) ---
+        function scrubTrackOffset(deck, deltaRadians) {
+            if (!deck.buffer) return;
+
+            // Mapeo: una vuelta completa (2*PI Radianes) desplaza el playhead 15 segundos
+            const secPerRad = 15.0 / (2 * Math.PI);
+            const dtOffset = deltaRadians * secPerRad;
+
+            if (deck.isScratching) {
+                deck.offset += dtOffset;
+                if (deck.offset < 0) deck.offset = 0;
+                deck.offset = deck.offset % deck.buffer.duration;
+            }
+        }
+
+        function triggerScratchSndSliver(deck, velocity) {
+            if (!audioCtx || !deck.buffer || Math.abs(velocity) < 0.05) return;
+
+            const slice = audioCtx.createBufferSource();
+            slice.buffer = deck.buffer;
+
+            // Filtro de fricción de la aguja con el surco
+            const highFilter = audioCtx.createBiquadFilter();
+            highFilter.type = 'bandpass';
+            highFilter.frequency.setValueAtTime(1000 + Math.abs(velocity) * 450, audioCtx.currentTime);
+
+            const gain = audioCtx.createGain();
+            const vol = Math.min(0.6, Math.abs(velocity) * 0.25);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.14);
+
+            // Altera el pitch según la velocidad instantánea de arrastre
+            const pitch = Math.max(0.15, Math.min(3.5, Math.abs(velocity) * 0.35));
+            slice.playbackRate.setValueAtTime(pitch, audioCtx.currentTime);
+
+            slice.connect(highFilter);
+            highFilter.connect(gain);
+            gain.connect(deck.gainNode);
+
+            const safePlayhead = Math.max(0, deck.offset % deck.buffer.duration);
+            try {
+                slice.start(0, safePlayhead, 0.15);
+            } catch(e) {}
+        }
+
+        // --- ACTUALIZACIÓN DE ESTADOS HTML ---
+        function updateWebUIs(deckId) {
+            const dec = deckId === 'A' ? deckA : deckB;
+            const hud = document.getElementById('hud-' + deckId.toLowerCase());
+            const dot = document.getElementById('dot-' + deckId.toLowerCase());
+            const song = DAFT_SONGS[dec.songIndex];
+
+            hud.innerHTML = `Pista: <strong>${song.name}</strong><br>Estado: <span style="color:${dec.isPlaying ? '#00f3ff' : '#999'}">${dec.isPlaying ? 'REPRODUCIENDO' : dec.status}</span>`;
+            
+            if (dec.isPlaying) {
+                dot.style.backgroundColor = song.color;
+                dot.style.boxShadow = `0 0 10px ${song.color}`;
+            } else {
+                dot.style.backgroundColor = '#333';
+                dot.style.boxShadow = 'none';
+            }
+        }
+
+        function createTrackSelectorLists() {
+            ['a', 'b'].forEach(deckCode => {
+                const list = document.getElementById(`tracklist-${deckCode}`);
+                list.innerHTML = "";
+                const currentDeckIndex = deckCode === 'a' ? deckA.songIndex : deckB.songIndex;
+
+                DAFT_SONGS.forEach((song, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = `track-option ${idx === currentDeckIndex ? 'active' : ''}`;
+                    if (idx === currentDeckIndex) {
+                        btn.style.setProperty('--active-color', song.color);
+                        btn.style.setProperty('--active-shadow', song.colorGlow);
+                    }
+                    btn.onclick = () => {
+                        const targetDeck = deckCode === 'a' ? deckA : deckB;
+                        loadSongBuffer(targetDeck, idx);
+                        // Refrescar clases estructuradas
+                        setTimeout(() => createTrackSelectorLists(), 50);
+                    };
+
+                    btn.innerHTML = `
+                         <div class="track-title">${song.name}</div>
+                         <div class="track-sub">Disco Real Stream</div>
+                    `;
+                    list.appendChild(btn);
+                });
+            });
+        }
+
+        // Iniciar selectores dinámicos
+        createTrackSelectorLists();
+
+        // --- p5.js RENDERIZADO Y FLUJO GRÁFICO (DIBUJO DE CONSOLA AMPLIA) ---
+        function setup() {
+            // El lienzo es más ancho (700px) para acomodar los tocadiscos sin encimarse
+            p5Canvas = createCanvas(700, 420);
+            p5Canvas.parent('canvas-frame');
+            angleMode(RADIANS);
+        }
+
+        function draw() {
+            background(8, 8, 14);
+
+            // Centros balanceados a distancias holgadas
+            let cenA = { x: 180, y: 160, r: 110 };
+            let cenB = { x: 520, y: 160, r: 110 };
+
+            // Capturar datos espectrales del ecualizador
+            if (deckA.analyser) {
+                deckA.analyser.getByteFrequencyData(deckA.dataArray);
+            }
+            if (deckB.analyser) {
+                deckB.analyser.getByteFrequencyData(deckB.dataArray);
+            }
+
+            // Mezclador cruzado de salida (Crossfader)
+            if (audioCtx) {
+                let balanceA = Math.cos(crossfader * Math.PI * 0.5);
+                let balanceB = Math.sin(crossfader * Math.PI * 0.5);
+                
+                deckA.gainNode.gain.setValueAtTime(deckA.volume * balanceA, audioCtx.currentTime);
+                deckB.gainNode.gain.setValueAtTime(deckB.volume * balanceB, audioCtx.currentTime);
+            }
+
+            // Gira los platos en pantalla de acuerdo con la velocidad configurada (Speed)
+            if (deckA.isPlaying && !deckA.isScratching) {
+                deckA.angle += 0.04 * deckA.speed;
+            }
+            if (deckB.isPlaying && !deckB.isScratching) {
+                deckB.angle += 0.04 * deckB.speed;
+            }
+
+            // Dibujar Tocadiscos A y B
+            drawSingleTurntable(deckA, cenA, DAFT_SONGS[deckA.songIndex]);
+            drawSingleTurntable(deckB, cenB, DAFT_SONGS[deckB.songIndex]);
+
+            // Dibujar Panel Inferior de Mezcladora
+            drawCentralControls();
+        }
+
+        function drawSingleTurntable(deck, cen, song) {
+            push();
+            translate(cen.x, cen.y);
+
+            // 1. Espectrograma de Aura Neón (Glow externo reactivo)
+            noFill();
+            strokeWeight(3);
+            
+            let ampSum = 0;
+            if (deck.dataArray) {
+                for(let i=0; i<deck.dataArray.length; i++) ampSum += deck.dataArray[i];
+            }
+            let avgAmp = ampSum / 64; 
+
+            stroke(song.color + '22');
+            strokeWeight(12 + avgAmp * 1.5);
+            beginShape();
+            for(let a = 0; a < TWO_PI; a += 0.08) {
+                let bin = Math.floor((a/TWO_PI) * 32);
+                let fVal = deck.dataArray ? (deck.dataArray[bin] || 0) : 0;
+                let amp = deck.isPlaying ? (fVal / 255.0) * 22 : 0;
+                let breathe = sin(frameCount * 0.1 + a * 4) * 3;
+                let r = cen.r + 14 + amp + breathe;
+                let x = cos(a) * r;
+                let y = sin(a) * r;
+                vertex(x, y);
+            }
+            endShape(CLOSE);
+
+            stroke(song.color);
+            strokeWeight(2.5);
+            beginShape();
+            for(let a = 0; a < TWO_PI; a += 0.08) {
+                let bin = Math.floor((a/TWO_PI) * 32);
+                let fVal = deck.dataArray ? (deck.dataArray[bin] || 0) : 0;
+                let amp = deck.isPlaying ? (fVal / 255.0) * 22 : 0;
+                let breathe = sin(frameCount * 0.1 + a * 4) * 3;
+                let r = cen.r + 14 + amp + breathe;
+                let x = cos(a) * r;
+                let y = sin(a) * r;
+                vertex(x, y);
+            }
+            endShape(CLOSE);
+
+            // 2. Chasis del Plato de Vinilo Negro Mate
+            fill(12, 12, 16);
+            stroke(40, 40, 52);
+            strokeWeight(3.5);
+            circle(0, 0, cen.r * 2);
+
+            // Reflejos en movimiento dinámico
+            push();
+            rotate(deck.angle);
+            noStroke();
+            fill(255, 255, 255, 12);
+            arc(0, 0, cen.r * 2 - 10, cen.r * 2 - 10, -QUARTER_PI, QUARTER_PI);
+            arc(0, 0, cen.r * 2 - 10, cen.r * 2 - 10, PI - QUARTER_PI, PI + QUARTER_PI);
+
+            // Surcos del disco
+            noFill();
+            stroke(255, 255, 255, 15);
+            strokeWeight(0.5);
+            for (let r = cen.r - 8; r > 30; r -= 8) {
+                circle(0, 0, r * 2);
+            }
+
+            // Etiqueta Central con Color Identificativo de Pista
+            fill(8, 8, 11);
+            stroke(song.color);
+            strokeWeight(2);
+            circle(0, 0, 44);
+
+            // Mira y Miras de Rotación
+            stroke(255, 255, 255, 40);
+            strokeWeight(1);
+            line(-18, 0, 18, 0);
+            line(0, -18, 0, 18);
+
+            stroke('#ffffff');
+            strokeWeight(1.5);
+            line(-8, 0, 8, 0);
+            line(0, -8, 0, 8);
+            pop();
+
+            // 3. Brazo del Tocadiscos e indicador de aguja
+            pop(); 
+            push();
+            translate(cen.x + cen.r * 0.9, cen.y - cen.r * 0.95);
+            
+            // Seguimiento analógico progresivo del disco
+            let progFactor = 0.22 + (deck.offset % 300) / 300 * 0.12; 
+            rotate(progFactor);
+
+            fill(30, 30, 38);
+            stroke(10, 10, 15);
+            strokeWeight(1.5);
+            circle(0, 0, 24);
+
+            noFill();
+            stroke(110, 110, 125);
+            strokeWeight(4);
+            bezier(0, 0, 25, 30, 10, 80, -12, 130);
+            stroke(230, 230, 240);
+            strokeWeight(1.5);
+            bezier(0, 0, 25, 30, 10, 80, -12, 130);
+
+            push();
+            translate(-12, 130);
+            rotate(-0.4);
+            fill(12, 12, 15);
+            stroke(70);
+            strokeWeight(1);
+            rect(-4, -10, 8, 16, 2);
+            // Punto de contacto con aguja neón brillante
+            fill(song.color);
+            noStroke();
+            circle(0, 2, 4);
+            pop();
+
+            pop();
+        }
+
+        function drawCentralControls() {
+            push();
+            
+            // Recuadro Principal del Mezclador (Base Gris Oscuro)
+            fill(12, 12, 15);
+            stroke(35, 35, 45);
+            strokeWeight(1.5);
+            rect(15, 310, 670, 100, 16);
+
+            // Deslizadores de Volumen (VOL) y de Velocidad (SPD)
+            drawVertFader(60, 325, deckA.volume, "VOL A", deckA.isPlaying);
+            drawVertFader(130, 325, deckA.speedVal, "SPD A", deckA.isPlaying);
+
+            drawVertFader(640, 325, deckB.volume, "VOL B", deckB.isPlaying);
+            drawVertFader(570, 325, deckB.speedVal, "SPD B", deckB.isPlaying);
+
+            // Botones Centrales de PLAY estructurados holgadamente
+            drawTriggerButton(210, 332, deckA.isPlaying, "PLAY A", deckA.isPlaying ? '#ff0077' : '#555', 110);
+            drawTriggerButton(380, 332, deckB.isPlaying, "PLAY B", deckB.isPlaying ? '#00f3ff' : '#555', 110);
+
+            // Fader de Mezcla Cruzador (Crossfader) con ancho de 280px para máxima precisión
+            drawHorizFader(210, 385, crossfader, "X-FADER", 280);
+
+            pop();
+        }
+
+        // --- SISTEMAS DE DIBUJO DE DESLIZADORES ---
+        function drawVertFader(x, y, val, label, active) {
+            push();
+            // Riel del canal
+            stroke(30, 30, 40);
+            strokeWeight(4);
+            line(x, y + 10, x, y + 60);
+
+            stroke(active ? '#00f3ff55' : '#222');
+            strokeWeight(1.5);
+            line(x, y + 10, x, y + 60);
+
+            // Mapeado del deslizador 
+            let ky = map(val, 0, 1, y + 60, y + 10);
+            fill(45, 45, 55);
+            stroke(80, 80, 95);
+            strokeWeight(1);
+            rect(x - 11, ky - 5, 22, 10, 3);
+            fill(active ? '#00f3ff' : '#666');
+            rect(x - 9, ky - 1, 18, 2, 1);
+
+            noStroke();
+            fill(130, 130, 145);
+            textSize(7.5);
+            textFont('JetBrains Mono');
+            textAlign(CENTER);
+            text(label, x, y + 74);
+            pop();
+        }
+
+        function drawHorizFader(x, y, val, label, w = 220) {
+            push();
+            stroke(30, 30, 40);
+            strokeWeight(4);
+            line(x, y, x + w, y);
+
+            let kx = map(val, 0, 1, x, x + w);
+            fill(50, 50, 60);
+            stroke(90, 90, 105);
+            strokeWeight(1);
+            rect(kx - 7, y - 10, 14, 20, 3);
+            
+            fill('#ff00aa');
+            rect(kx - 1, y - 8, 2, 16, 1);
+
+            noStroke();
+            fill(100, 100, 115);
+            textSize(8);
+            textAlign(CENTER);
+            text(label, x + w / 2, y + 16);
+            pop();
+        }
+
+        function drawTriggerButton(x, y, active, label, activeCol, w = 100) {
+            push();
+            fill(active ? activeCol : 'rgba(255,255,255,0.02)');
+            stroke(active ? activeCol : 'rgba(255,255,255,0.06)');
+            strokeWeight(1.5);
+            rect(x, y, w, 34, 12);
+
+            noStroke();
+            fill(active ? '#000000' : '#88889a');
+            textSize(10);
+            textStyle(BOLD);
+            textAlign(CENTER, CENTER);
+            text(label, x + w / 2, y + 17);
+            pop();
+        }
+
+        function getMouseRecordAngle(mx, my, cen) {
+            let dx = mx - cen.x;
+            let dy = my - cen.y;
+            return atan2(dy, dx);
+        }
+
+        // --- INTERACCIONES DE CLIC Y TOUCH DRAG ---
+        function mousePressed() {
+            let cenA = { x: 180, y: 160, r: 110 };
+            let cenB = { x: 520, y: 160, r: 110 };
+
+            audioCtx && audioCtx.resume();
+
+            // Interacción con plato A
+            let distA = dist(mouseX, mouseY, cenA.x, cenA.y);
+            if (distA < cenA.r) {
+                deckA.isScratching = true;
+                deckA.lastAngle = getMouseRecordAngle(mouseX, mouseY, cenA);
+                deckA.lastDragTime = millis();
+                
+                if (deckA.source) {
+                    try { deckA.source.stop(); } catch(e){}
+                    deckA.source = null;
+                }
+            }
+
+            // Interacción con plato B
+            let distB = dist(mouseX, mouseY, cenB.x, cenB.y);
+            if (distB < cenB.r) {
+                deckB.isScratching = true;
+                deckB.lastAngle = getMouseRecordAngle(mouseX, mouseY, cenB);
+                deckB.lastDragTime = millis();
+
+                if (deckB.source) {
+                    try { deckB.source.stop(); } catch(e){}
+                    deckB.source = null;
+                }
+            }
+
+            // Click de los botones PLAY
+            if (mouseX >= 210 && mouseX <= 320 && mouseY >= 332 && mouseY <= 368) {
+                toggleDeckPlayback(deckA);
+            }
+            if (mouseX >= 380 && mouseX <= 490 && mouseY >= 332 && mouseY <= 368) {
+                toggleDeckPlayback(deckB);
+            }
+        }
+
+        function mouseDragged() {
+            let cenA = { x: 180, y: 160, r: 110 };
+            let cenB = { x: 520, y: 160, r: 110 };
+
+            // SCRATCH PLATO A
+            if (deckA.isScratching) {
+                let currentAngle = getMouseRecordAngle(mouseX, mouseY, cenA);
+                let delta = currentAngle - deckA.lastAngle;
+                
+                if (delta > PI) delta -= TWO_PI;
+                if (delta < -PI) delta += TWO_PI;
+
+                deckA.angle += delta;
+                deckA.lastAngle = currentAngle;
+
+                scrubTrackOffset(deckA, delta);
+
+                let now = millis();
+                let dt = max(1, now - deckA.lastDragTime);
+                deckA.lastDragTime = now;
+
+                let velocity = (delta / dt) * 1000;
+                triggerScratchSndSliver(deckA, velocity);
+            }
+
+            // SCRATCH PLATO B
+            if (deckB.isScratching) {
+                let currentAngle = getMouseRecordAngle(mouseX, mouseY, cenB);
+                let delta = currentAngle - deckB.lastAngle;
+
+                if (delta > PI) delta -= TWO_PI;
+                if (delta < -PI) delta += TWO_PI;
+
+                deckB.angle += delta;
+                deckB.lastAngle = currentAngle;
+
+                scrubTrackOffset(deckB, delta);
+
+                let now = millis();
+                let dt = max(1, now - deckB.lastDragTime);
+                deckB.lastDragTime = now;
+
+                let velocity = (delta / dt) * 1000;
+                triggerScratchSndSliver(deckB, velocity);
+            }
+
+            // Arrastrar deslizadores en controlera inferior (VOL y SPD)
+            // Límite rango VOL A (x = 60)
+            if (mouseX >= 40 && mouseX <= 80 && mouseY >= 315 && mouseY <= 395) {
+                deckA.volume = constrain(map(mouseY, 385, 335, 0, 1), 0, 1);
+            }
+            // Límite rango velocidad SPD A (x = 130)
+            if (mouseX >= 110 && mouseX <= 150 && mouseY >= 315 && mouseY <= 395) {
+                deckA.speedVal = constrain(map(mouseY, 385, 335, 0, 1), 0, 1);
+                deckA.speed = 0.6 + deckA.speedVal * 0.8; // Transforma de 0.6x a 1.4x velocidad
+                if (deckA.source && deckA.isPlaying && !deckA.isScratching) {
+                    deckA.source.playbackRate.setValueAtTime(deckA.speed, audioCtx.currentTime);
+                }
+            }
+
+            // Límite rango VOL B (x = 640)
+            if (mouseX >= 620 && mouseX <= 660 && mouseY >= 315 && mouseY <= 395) {
+                deckB.volume = constrain(map(mouseY, 385, 335, 0, 1), 0, 1);
+            }
+            // Límite rango velocidad SPD B (x = 570)
+            if (mouseX >= 550 && mouseX <= 590 && mouseY >= 315 && mouseY <= 395) {
+                deckB.speedVal = constrain(map(mouseY, 385, 335, 0, 1), 0, 1);
+                deckB.speed = 0.6 + deckB.speedVal * 0.8; // Transforma de 0.6x a 1.4x velocidad
+                if (deckB.source && deckB.isPlaying && !deckB.isScratching) {
+                    deckB.source.playbackRate.setValueAtTime(deckB.speed, audioCtx.currentTime);
+                }
+            }
+
+            // Arrastrar el crossfader horizontal (x=210 hasta x=490, ancho=280)
+            if (mouseX >= 195 && mouseX <= 505 && mouseY >= 370 && mouseY <= 400) {
+                crossfader = constrain(map(mouseX, 210, 490, 0, 1), 0, 1);
+            }
+        }
+
+        function mouseReleased() {
+            // Regresa a la reproducción normal estabilizada
+            if (deckA.isScratching) {
+                deckA.isScratching = false;
+                if (deckA.isPlaying) {
+                    startBufferPlaybackNode(deckA);
+                }
+            }
+            if (deckB.isScratching) {
+                deckB.isScratching = false;
+                if (deckB.isPlaying) {
+                    startBufferPlaybackNode(deckB);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
